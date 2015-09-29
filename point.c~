@@ -100,7 +100,7 @@ void points_show_config(void)
         printf("    (Fx, Fy, Fz) = (%e %e %e)\n",
       points[i].Fx, points[i].Fy, points[i].Fz);
     printf("    rho = %f\n", points[i].rho);
-    printf("    ID = %d\n", points[i].id);
+    printf("    ID = %ld\n", points[i].id);
 	
   }
   /*
@@ -113,7 +113,7 @@ void points_show_config(void)
 
 
 //This subroutine delete the old particle&scalar, and inject new particle and scalar into the flow field based on point.config&&scalar.config
-void points_scalar_inject(void)
+int points_scalar_inject(void)
 {
 
 //free points on device and host
@@ -295,14 +295,14 @@ void bubble_generate(void)
 	fflush(stdout);
 
 	point_struct *pointsbuf;
-	pointsbuf = (point_struct *) malloc(sizeof(point_struct) * npoints);
+	pointsbuf = (point_struct *) malloc(sizeof(point_struct) * nold);
 	memcpy(pointsbuf, points, sizeof(point_struct) * nold);
 	printf("Host point to buf\n");
 	fflush(stdout);
 	free(points);
 
 	points = (point_struct *) malloc(sizeof(point_struct) * npoints);
-	int ncpy = (nold > npoints) ? npoints : nold;
+//	int ncpy = (nold > npoints) ? npoints : nold;
 	memcpy(points, pointsbuf, sizeof(point_struct) * (nold - nout));
 	printf("Host buf to point\n");
 	fflush(stdout);

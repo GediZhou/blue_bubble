@@ -527,7 +527,7 @@ void points_show_config(void);
  */
 
 
-void points_scalar_inject(void);
+int points_scalar_inject(void);
 void match_point_vel_with_flow(void);
 
 /****f* point_particle/points_init()

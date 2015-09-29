@@ -10,6 +10,7 @@
 #include <thrust/reduce.h>
 #include <thrust/functional.h>
 #include <thrust/sort.h>
+#include <thrust/scan.h>
 
 #include "cuda_point.h"
 #include "entrySearch.h"

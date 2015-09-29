@@ -813,6 +813,7 @@ int main(int argc, char *argv[]) {
 
           printf("  The Lamb's coefficients converged in");
           printf(" %d iterations.\n", iter);
+	  fflush(stdout);
 
           if(!lambflag) {
             // update particle position
@@ -833,7 +834,7 @@ int main(int argc, char *argv[]) {
 			if(npoints > 0)
 		   	 cuda_flow_stress();
 			bubble_generate();
-			points_show_config();
+		//	points_show_config();
 	    	cuda_find_DIFF_dt_points();
 	    	//move bubbles and update scalar fields
 	    	if(npoints > 0)

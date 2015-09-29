@@ -729,9 +729,15 @@ int main(int argc, char *argv[]) {
           fflush(stdout);
 
           cuda_compute_forcing(&pid_int, &pid_back, Kp, Ki, Kd);
-		  if(npoints > 0 && lpt_twoway > 0)
+	  printf("Compute forcing\n");
+	  fflush(stdout);
+	  if(npoints > 0 && lpt_twoway > 0)
 				  lpt_point_twoway_forcing();
+	  printf("Two_way forcing\n");
+	  fflush(stdout);
           compute_vel_BC();
+	  printf("Compute Vel BC\n");
+	  fflush(stdout);
           // update the boundary condition config info and share with precursor
           expd_update_BC(np, status);
 
@@ -813,6 +819,7 @@ int main(int argc, char *argv[]) {
 
           printf("  The Lamb's coefficients converged in");
           printf(" %d iterations.\n", iter);
+	  fflush(stdout);
 
           if(!lambflag) {
             // update particle position

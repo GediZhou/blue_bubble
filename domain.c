@@ -3191,7 +3191,8 @@ void out_restart(void)
     fprintf(stderr, "Could not open file restart.input.\n");
     exit(EXIT_FAILURE);
   }
-
+  
+  fwrite(&npoints, sizeof(int), 1, rest);
   fwrite(&ttime, sizeof(real), 1, rest);
   fwrite(&dt0, sizeof(real), 1, rest);
   fwrite(&dt, sizeof(real), 1, rest);
@@ -3270,11 +3271,23 @@ void out_restart(void)
   fwrite(&rec_prec_ttime_out, sizeof(real), 1, rest);
   fwrite(&pid_int, sizeof(real), 1, rest);
   fwrite(&pid_back, sizeof(real), 1, rest);
-  fwrite(&gradP.z, sizeof(real), 2, rest);
+  fwrite(&gradP.z, sizeof(real), 1, rest);
+
+  //scalar field data
+  fwrite(sc, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(sc0, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(diff0_sc, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(conv0_sc, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(diff_sc, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(conv_sc, sizeof(real), Dom.Gcc.s3b, rest);
+
+  //point bubble data
+  fwrite(points, sizeof(point_struct), npoints, rest);
 
   // close the file
   fclose(rest);
 }
+
 
 void in_restart(void)
 {
@@ -3289,6 +3302,7 @@ void in_restart(void)
     exit(EXIT_FAILURE);
   }
 
+  fret = fread(&npoints, sizeof(int), 1, infile);
   fret = fread(&ttime, sizeof(real), 1, infile);
   fret = fread(&dt0, sizeof(real), 1, infile);
   fret = fread(&dt, sizeof(real), 1, infile);
@@ -3369,6 +3383,21 @@ void in_restart(void)
   fret = fread(&pid_back, sizeof(real), 1, infile);
   fret = fread(&gradP.z, sizeof(real), 1, infile);
 
+  //scalar field data
+  fread(sc, sizeof(real), Dom.Gcc.s3b, infile);
+  fread(sc0, sizeof(real), Dom.Gcc.s3b, infile);
+  fread(diff0_sc, sizeof(real), Dom.Gcc.s3b, infile);
+  fread(conv0_sc, sizeof(real), Dom.Gcc.s3b, infile);
+  fread(diff_sc, sizeof(real), Dom.Gcc.s3b, infile);
+  fread(conv_sc, sizeof(real), Dom.Gcc.s3b, infile);
+
+  //point bubble data
+  free(points);
+  cuda_point_free();
+  cuda_point_malloc();
+  points = (point_struct *)malloc(sizeof(point_struct) * npoints);
+  fread(points, sizeof(point_struct), npoints, infile);
+
   // close file
   fclose(infile);
 }
@@ -3384,6 +3413,7 @@ void out_restart_turb(void)
     exit(EXIT_FAILURE);
   }
 
+  fwrite(&npoints, sizeof(int), 1, rest);
   fwrite(&ttime, sizeof(real), 1, rest);
   fwrite(&dt0, sizeof(real), 1, rest);
   fwrite(&dt, sizeof(real), 1, rest);
@@ -3429,6 +3459,17 @@ void out_restart_turb(void)
   fwrite(flag_u, sizeof(int), Dom.Gfx.s3b, rest);
   fwrite(flag_v, sizeof(int), Dom.Gfy.s3b, rest);
   fwrite(flag_w, sizeof(int), Dom.Gfz.s3b, rest);
+
+//scalar field data
+  fwrite(sc, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(sc0, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(diff0_sc, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(conv0_sc, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(diff_sc, sizeof(real), Dom.Gcc.s3b, rest);
+  fwrite(conv_sc, sizeof(real), Dom.Gcc.s3b, rest);
+
+//point bubble data
+  fwrite(points, sizeof(points[0]), npoints, rest);
 
   fwrite(bc_plane_pos, sizeof(real), 9, rest);
 

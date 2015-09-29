@@ -100,7 +100,7 @@ void points_show_config(void)
         printf("    (Fx, Fy, Fz) = (%e %e %e)\n",
       points[i].Fx, points[i].Fy, points[i].Fz);
     printf("    rho = %f\n", points[i].rho);
-    printf("    ID = %d\n", points[i].id);
+    printf("    ID = %ld\n", points[i].id);
 	
   }
   /*
@@ -113,7 +113,7 @@ void points_show_config(void)
 
 
 //This subroutine delete the old particle&scalar, and inject new particle and scalar into the flow field based on point.config&&scalar.config
-void points_scalar_inject(void)
+int points_scalar_inject(void)
 {
 
 //free points on device and host
@@ -174,7 +174,7 @@ if(npoints>0) cuda_flow_stress();
             cgns_scalar_field(rec_scalar_field_dt);
             rec_scalar_stepnum_out++;
           }
-        
+	return EXIT_SUCCESS;        
 
 }
 
@@ -302,7 +302,7 @@ void bubble_generate(void)
 	free(points);
 
 	points = (point_struct *) malloc(sizeof(point_struct) * npoints);
-	int ncpy = (nold > npoints) ? npoints : nold;
+//	int ncpy = (nold > npoints) ? npoints : nold;
 	memcpy(points, pointsbuf, sizeof(point_struct) * (nold - nout));
 	printf("Host buf to point\n");
 	fflush(stdout);

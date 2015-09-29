@@ -269,7 +269,7 @@ typedef struct point_struct {
   real spring_y;
   real spring_z;
 */
-  int rotating;
+//  int rotating;
   long int id;
 
 //Grid index to record which grid cell the particle center is in
