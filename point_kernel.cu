@@ -36,7 +36,6 @@ __global__ void point_copy(point_struct *points_buf,point_struct *old_points,int
 {
 	int pp=blockIdx.x*blockDim.x+threadIdx.x;
 	if (pp>=npoints) return;
-	if (pp == 0)
 		if (exist[pp]==0)
 		{
          	int id=pp-shift[pp];

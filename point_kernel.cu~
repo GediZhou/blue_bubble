@@ -37,13 +37,10 @@ __global__ void point_copy(point_struct *points_buf,point_struct *old_points,int
 	int pp=blockIdx.x*blockDim.x+threadIdx.x;
 	if (pp>=npoints) return;
 	if (pp == 0)
-	printf("Point_Copy Kernel\n");
 		if (exist[pp]==0)
 		{
          	int id=pp-shift[pp];
         	points_buf[id]=old_points[pp];
-		if(pp == 0)
-			printf("old_point_x buf_x %lf %lf\n", points_buf[id].x, old_points[pp].x);
         //	memcpy(&points_buf[id],&old_points[pp],sizeof(point_struct));
         }
 }
