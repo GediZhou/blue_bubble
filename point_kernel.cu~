@@ -18,7 +18,7 @@ __global__ void scan_serial(int *A, int *B,int size)
 		for(i = 1; i < size; i++)
 			{
 				A[i] = A[i-1] + B[i];
-				printf("Total out %d\n", A[i]);
+//				printf("Total out %d\n", A[i]);
 			}
 }
 
@@ -36,11 +36,15 @@ __global__ void point_copy(point_struct *points_buf,point_struct *old_points,int
 {
 	int pp=blockIdx.x*blockDim.x+threadIdx.x;
 	if (pp>=npoints) return;
+	if (pp == 0)
+	printf("Point_Copy Kernel\n");
 		if (exist[pp]==0)
 		{
          	int id=pp-shift[pp];
         	points_buf[id]=old_points[pp];
-        	memcpy(&points_buf[id],&old_points[pp],sizeof(point_struct));
+		if(pp == 0)
+			printf("old_point_x buf_x %lf %lf\n", points_buf[id].x, old_points[pp].x);
+        //	memcpy(&points_buf[id],&old_points[pp],sizeof(point_struct));
         }
 }
 
@@ -195,7 +199,6 @@ for(int k=ks;k<ke;k++)
     int ti = threadIdx.x;
     int tj = threadIdx.y;
 
-clock_t time1 = clock();
 
 if(i<ie&&i>=is && j<je&&j>=js)
 {
@@ -212,7 +215,6 @@ cell_end1[ti+tj*blockDim.x]=cellEnd[gridHash1];
 cell_end2[ti+tj*blockDim.x]=cellEnd[gridHash2];
 }
 
-clock_t time2 = clock();
 
    __syncthreads();
 
@@ -221,7 +223,7 @@ clock_t time2 = clock();
 
 //	real xp,yp,zp;
 	int it,jt,kt;
-        int ip,jp,kp;//index of particle cell
+	int ip, jp, kp;
 	int tip,tjp;
 //	real force=0.f;
 	real forceCell = 0.f;
@@ -242,12 +244,10 @@ for(int dj=-1;dj<2;dj++)
 	//	int gridHash=calcGridHash(ip,jp,kp,dom,coordiSys);
 		tip=ti-di;tjp=tj-dj;
 
-clock_t time11 = clock();	 
 		start_index[0]=cell_start0[tip+tjp*blockDim.x];
 		start_index[1]=cell_start1[tip+tjp*blockDim.x];
 		start_index[2]=cell_start2[tip+tjp*blockDim.x];
 	
-clock_t time12 = clock();	 
 		for(int dk=-1;dk<2;dk++)
 		{
 			it=di+1;jt=dj+1;kt=dk+1;
@@ -255,7 +255,6 @@ clock_t time12 = clock();
  if(start_index[kt]>=0)
 			{ 
 
-clock_t time13 = clock();	 
 				switch(dk)
 				{
 				  case -1: end_index[0]=cell_end0[tip+tjp*blockDim.x];break;
@@ -263,42 +262,13 @@ clock_t time13 = clock();
 				  case  1: end_index[2]=cell_end2[tip+tjp*blockDim.x];break;
 				  default:break;
 				}
-clock_t time14 = clock();	 
 	 			
 				for (int index=start_index[kt]; index<end_index[kt]; index++)
         			{
-				//Read of Global memory, how to coalesce it???
-				//int pp=gridParticleIndex[index]; 
-				//Try to avoid bank conflicts here, if we have shared memory
-				//forceCell += Ksi[it+jt*STENCIL+kt*STENCIL2+pp*STENCIL3];//calc index for Ksi takes no timea.
-
-clock_t time15 = clock();	 
-				//Reading the position takes little time, about 160 ct(clock_t)
-			//	xp=posX[index];
-			//	yp=posY[index];
-			//	zp=posZ[index];
-				
-clock_t time16 = clock();	 
-				ksi=Ksi[it+jt*STENCIL+kt*STENCIL2+index*STENCIL3];
-clock_t time17 = clock();	 
+								ksi=Ksi[it+jt*STENCIL+kt*STENCIL2+index*STENCIL3];
 				forceCell += ksi;
-//				forceCell +=lpt_integrate_mol_opt(i,j,k,xp,yp,zp,dom,coordiSys)*Weight[index];
-		//printf("\nstartEndIndex %d %d %d %f %f\n",start_index[kt],end_index[kt],index,test,Weight[index]);
-		//printf("\nposition %f %f %f %d %d\n",xp,yp,zp,index,start_index[kt]);
-//if(it+jt*STENCIL+kt*STENCIL2>STENCIL3-1)	printf("\nposition %f %f %f %d %d\n",xp,yp,zp,index,start_index[kt]);
 
-clock_t time18 = clock();
 
-int dt11=(int) (time12-time11);
-int dt12=(int) (time13-time12);
-int dt13=(int) (time14-time13);
-int dt14=(int) (time15-time14);
-int dt15=(int) (time16-time15);
-int dt16=(int) (time17-time16);
-int dt17=(int) (time18-time17);
-//if(i==31&&j==31&&k==31)
-// printf("\ninner time: %d %d %d %d %d %d %d\n",dt11,dt12,dt13,dt14,dt15,dt16,dt17);
-	 
 				}
 
 				
@@ -329,14 +299,6 @@ clock_t time4 = clock();
 //	 A[gridHash]=sum_ksi_cell(i,j,k,points,dom,Ksi,cellStart,cellEnd,gridParticleIndex,coordiSys,valType);
 		}
 
-clock_t time5 = clock();
-
-int dt1=(int) (time2-time1);
-int dt2=(int) (time3-time2);
-int dt3=(int) (time4-time3);
-int dt4=(int) (time5-time4);
-
-//if(i==30&&j==30&&k==30) printf("\ntime 1~4 %d %d %d %d\n",dt1,dt2,dt3,dt4);
 
 	}
 }
@@ -430,8 +392,8 @@ real ksi[3][3][3];
 real  xp =  posX[index];
 real  yp =  posY[index];
 real  zp =  posZ[index];
-real x1,x2,x3,y1,y2,y3,z1,z2,z3;
-real wx[3],wy[3],wz[3];
+//real x1,x2,x3,y1,y2,y3,z1,z2,z3;
+//real wx[3],wy[3],wz[3];
 
 
 
@@ -1663,9 +1625,11 @@ stress[i + j*dom->Gfz._s1b + k*dom->Gfz._s2b]= rho_f* s_d[ti + tj*blockDim.x]-gr
 __global__ void interpolate_point_scalar_Lag3(int npoints,real *A,real *Ag, point_struct *points, dom_struct *dom)
 {
   int pp =  threadIdx.x + blockIdx.x*blockDim.x;
+  /*
   real ddx = 1. / dom->dx;
   real ddy = 1. / dom->dy;
   real ddz = 1. / dom->dz;
+  */
  
 if(pp<npoints)
 {
@@ -1740,9 +1704,11 @@ ksi[is][js][ks]=ksi[is][js][ks]/buf;
 __global__ void interpolate_point_scalar_Gaussian(int npoints,real *A,real *Ag, point_struct *points, dom_struct *dom)
 {
   int pp =  threadIdx.x + blockIdx.x*blockDim.x;
+  /*
   real ddx = 1. / dom->dx;
   real ddy = 1. / dom->dy;
   real ddz = 1. / dom->dz;
+  */
  
 if(pp<npoints)
 {
@@ -2438,12 +2404,10 @@ ddot=msddot+pddot;
      // update mass
 		points[pp].rho=0.001225*(1+(h-points[pp].z)*pef);
       	points[pp].ms = points[pp].ms0 + points[pp].msdot * dt;
-/*
-if(pp < 10)
+if(pp < 5)
 {
 	printf("z w dt z0 %e %e %e %e\n", points[pp].z, points[pp].w, dt, points[pp].z0);
 }
-*/
      // update bubble radius
      //points[pp].r=(dia+ddot*dt)/2.0f; 
    	real rcube=points[pp].ms*3./4./PI/points[pp].rho;
@@ -2451,7 +2415,7 @@ if(pp < 10)
      // update particle time step
      if (points[pp].w>EPSILON)
       points[pp].dt = 1/points[pp].w;
-real ze=dom->ze;
+	real ze=dom->ze;
 /*
 if (points[pp].z>ze)
 	exist[pp]=1;

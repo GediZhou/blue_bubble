@@ -174,7 +174,7 @@ if(npoints>0) cuda_flow_stress();
             cgns_scalar_field(rec_scalar_field_dt);
             rec_scalar_stepnum_out++;
           }
-        
+	return EXIT_SUCCESS;        
 
 }
 

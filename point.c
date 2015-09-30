@@ -296,13 +296,13 @@ void bubble_generate(void)
 
 	point_struct *pointsbuf;
 	pointsbuf = (point_struct *) malloc(sizeof(point_struct) * nold);
+
 	memcpy(pointsbuf, points, sizeof(point_struct) * nold);
 	printf("Host point to buf\n");
 	fflush(stdout);
 	free(points);
 
 	points = (point_struct *) malloc(sizeof(point_struct) * npoints);
-//	int ncpy = (nold > npoints) ? npoints : nold;
 	memcpy(points, pointsbuf, sizeof(point_struct) * (nold - nout));
 	printf("Host buf to point\n");
 	fflush(stdout);

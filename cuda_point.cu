@@ -1,7 +1,7 @@
 //#include "point.h"
 
 #include <cuda.h>
-//#include <helper_cuda.h>
+#include <helper_cuda.h>
 
 //#include "bluebottle.h"
 //#include <cusp/krylov/cg.h>
@@ -296,7 +296,7 @@ void cuda_point_out()
 {
 	if (npoints<=0) return;
 	(cudaMalloc((void**) &(points_buf), sizeof(point_struct) * npoints));
-   	(cudaMemcpy(points_buf, points, sizeof(point_struct) * npoints,cudaMemcpyHostToDevice));
+   //	(cudaMemcpy(points_buf, points, sizeof(point_struct) * npoints,cudaMemcpyHostToDevice));
 	#pragma omp parallel num_threads(nsubdom)
 	{
 	 int dev = omp_get_thread_num();
@@ -308,7 +308,8 @@ void cuda_point_out()
 		 printf("Nout %d\n", nout);
 			 fflush(stdout);
      dim3 blocks,threads;
-	 block_thread_point(blocks,threads,npoints);
+	 block_thread_point(threads,blocks,npoints);
+	 printf("blocks threads %d %d\n", blocks.x, threads.x);
 	 point_copy<<<blocks,threads>>>(points_buf,_points[dev],existStatus[dev],totalout[dev],npoints);
 	printf("Copy Points \n");
 	fflush(stdout);
